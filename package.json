@@ -1,0 +1,15 @@
+{
+  "name": "pulsepay-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Clickable demo of PulsePay, a rent and payout tool for clinics with self-employed therapists. Fictional data.",
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "node --test \"test/*.test.js\"",
+    "sample": "node scripts/generate-sample.js",
+    "start": "node scripts/serve.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

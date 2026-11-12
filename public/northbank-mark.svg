@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Northbank Physio"><defs><linearGradient id="m" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14A08A"/><stop offset="1" stop-color="#0B6B63"/></linearGradient></defs>
+<g transform="translate(0 0) scale(1.0)"><rect width="48" height="48" rx="13" fill="url(#m)"/>
+<path d="M13 27 L24 15 L35 27" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M11 35.5 q6.5 -5 13 0 t13 0" fill="none" stroke="#9FE3CF" stroke-width="4" stroke-linecap="round"/></g></svg>

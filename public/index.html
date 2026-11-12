@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en-IE">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PulsePay demo • Therapist rent and payouts</title>
+<meta name="description" content="A clickable demo of PulsePay, which works out self-employed therapists' rent from a clinic's bookings export. Fictional clinic and therapists; nothing is saved to a server." />
+<meta name="theme-color" content="#0b3d91" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="css/pulsepay.css" />
+<link rel="stylesheet" href="css/demo.css" />
+</head>
+
+<body>
+
+<div class="demo-bar" role="region" aria-label="Demo">
+  <div class="demo-bar-inner">
+    <p class="demo-bar-text"><strong>Demo</strong> · fictional clinic and therapists · nothing is saved to a server</p>
+    <div class="demo-bar-links">
+      <a href="samples/northbank-bookings-october-2026.csv" download>Sample CSV</a>
+      <button type="button" class="demo-bar-button" data-act="reset">Reset</button>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <img src="northbank-mark.svg" alt="" width="34" height="34" />
+        <div>PulsePay <span class="brand-sub">Northbank Physio</span></div>
+      </div>
+
+      <div class="pill" id="navActions">
+        <button class="btn btn-primary" type="button" data-act="pick-file">Upload CSV</button>
+        <button class="btn btn-ghost" type="button" data-act="pdf-one">Download PDF</button>
+        <button class="btn btn-ghost" type="button" data-act="pdf-all">All statements</button>
+        <button class="btn btn-ghost" type="button" data-act="open-calc">Capacity Calculator</button>
+        <button class="btn btn-ghost" type="button" data-act="open-rules">Edit Rules</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- Therapists -->
+    <section class="card" style="text-align:center; margin-top:16px;" id="therapists" aria-labelledby="therapistsTitle">
+      <div class="cardHeader" style="justify-content:center;">
+        <div>
+          <h2 class="h3" id="therapistsTitle" style="margin:0;">Therapists</h2>
+          <p class="sub" style="margin:6px 0 0;">Select a therapist to see their rent, rules and statement.</p>
+        </div>
+      </div>
+
+      <div class="bubbleGrid" id="bubbleGrid" style="justify-content:center;"></div>
+
+      <div style="margin-top:14px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-primary" type="button" data-act="create-profile">+ Create New Profile</button>
+        <button class="btn btn-ghost-dark" type="button" data-act="delete-profile">Delete Selected</button>
+      </div>
+    </section>
+
+    <!-- Month overview -->
+    <section class="card overview" id="overview" aria-labelledby="overviewTitle">
+      <div class="cardHeader">
+        <div>
+          <h2 class="h3" id="overviewTitle">Month overview</h2>
+          <p class="sub" id="overviewSub">Every therapist's rent for the billing period.</p>
+        </div>
+        <button class="btn btn-ghost-dark" type="button" data-act="pdf-all">Download all statements</button>
+      </div>
+      <div id="overviewBody"></div>
+    </section>
+
+    <!-- Hero row -->
+    <div class="hero" style="margin-top:14px;">
+      <section class="heroCard" aria-label="Selected therapist">
+        <h1 class="heroTitle" id="heroTitleText">
+          <span id="heroName">PulsePay</span>
+          <span id="heroSuffix"> payouts. Zero spreadsheets.</span>
+        </h1>
+
+        <p class="heroSub" id="heroSub">
+          Load a month of bookings and get every therapist's rent at once:
+          weekday and weekend rates, capacity tiers, rent cap, retainer, equipment fees and the amount due.
+        </p>
+
+        <div class="heroMeta" id="rules"></div>
+
+        <!-- Capacity -->
+        <div class="mini" id="capacityCard" style="margin-top:14px;">
+          <h4>Capacity</h4>
+          <div class="row"><span>Max sessions in the period</span><strong id="capMaxP">—</strong></div>
+          <div class="row">
+            <label for="capActualInput">Sessions seen</label>
+            <input id="capActualInput" class="capActualInput" type="number" min="0" step="1" placeholder="—" inputmode="numeric" />
+          </div>
+          <div class="row"><span>% Capacity</span><strong id="capPct">—</strong></div>
+          <div class="row"><span id="capRateLabel">Rent rate</span><strong id="capWeekdayPct">—</strong></div>
+          <div class="capTable" id="capTable"></div>
+          <div class="note">Change <b>Sessions seen</b> to count sessions booked outside the system. Capacity is set in <b>Edit Rules</b> or worked out with the <b>Capacity Calculator</b>.</div>
+        </div>
+      </section>
+
+      <aside class="sideCard">
+        <div class="sideTop">
+          <div>
+            <h3>Current Selection</h3>
+            <div class="small" id="selLabel">None selected</div>
+          </div>
+          <span class="tag"><span class="dot"></span><b>Status</b> <span id="statusText">Ready</span></span>
+        </div>
+
+        <div class="ruleRow" style="align-items:center;">
+          <strong>Bookings</strong>
+          <span style="display:flex; align-items:center; gap:10px;">
+            <span class="status-dot" id="csvDot"></span>
+            <span id="csvMsg">Waiting for bookings</span>
+          </span>
+        </div>
+
+        <div class="ruleRow" style="align-items:center;">
+          <strong>Billing period</strong>
+          <span class="periodVal"><span id="periodLabel">—</span> <button type="button" class="linkBtn" data-act="open-period">Change</button></span>
+        </div>
+
+        <div class="ruleRow" style="align-items:center;">
+          <strong>Rent model</strong>
+          <span id="modelLabel">—</span>
+        </div>
+
+        <div class="note" style="margin-top:10px;">
+          Tip: any booking system's export works. Upload a CSV and match its columns to <b>date</b>, <b>therapist</b>, <b>treatment</b>, <b>price</b> and <b>status</b>.
+        </div>
+      </aside>
+    </div>
+
+    <!-- Upload -->
+    <div class="panel" id="upload">
+      <section class="card" aria-labelledby="uploadHeading">
+        <div class="cardHeader">
+          <div>
+            <h2 class="h3" id="uploadHeading">Bookings</h2>
+            <p class="sub">Drag &amp; drop a bookings export (or browse). One file covers every therapist.</p>
+          </div>
+          <span class="tag"><span class="dot"></span><b>CSV</b> Parser</span>
+        </div>
+
+        <div class="drop" id="dropArea">
+          <div class="dropLeft">
+            <div><b id="uploadTitle">No bookings loaded</b></div>
+            <div class="small" id="uploadDetail">Drop a CSV here, browse, or load the sample month</div>
+          </div>
+
+          <div class="fileRow">
+            <button class="btn btn-primary" type="button" data-act="load-sample">Load sample month</button>
+            <button class="btn btn-ghost-dark" type="button" data-act="pick-file">Browse CSV</button>
+            <input id="fileInput" type="file" accept=".csv,text/csv" />
+          </div>
+        </div>
+        <p class="note" style="margin-top:8px;">Sample file: <a href="samples/northbank-bookings-october-2026.csv" download>northbank-bookings-october-2026.csv</a> (fictional, October 2026). Patients are never shown: only counts and totals.</p>
+
+        <div id="errBox" class="error" style="display:none;" role="alert"></div>
+        <div id="warnBox" class="warn" style="display:none;"></div>
+
+        <div class="grid" id="results" style="display:none;">
+          <div class="stat">
+            <div class="k">Sessions</div>
+            <div class="v blue" id="sessions">0</div>
+            <div class="s" id="sessionsNote">in the period</div>
+          </div>
+          <div class="stat">
+            <div class="k">Takings</div>
+            <div class="v" id="collectedTotal">€0.00</div>
+            <div class="s" id="takingsNote">sum of prices charged</div>
+          </div>
+          <div class="stat">
+            <div class="k">Rent Share</div>
+            <div class="v red" id="grossShare">€0.00</div>
+            <div class="s" id="grossNote">before cap and retainer</div>
+          </div>
+          <div class="stat">
+            <div class="k">Total Due</div>
+            <div class="v red" id="finalDue">€0.00</div>
+            <div class="s" id="finalNote">cap, retainer and extras applied</div>
+          </div>
+        </div>
+
+        <div class="breakdown" id="breakdown" style="display:none;">
+          <div class="mini">
+            <h4>How the rent was worked out</h4>
+            <div id="stepsList"></div>
+          </div>
+
+          <div class="mini">
+            <h4>Rules Applied</h4>
+            <div id="rulesApplied"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Itemised charges -->
+    <section class="card" id="itemizedChargesCard" aria-labelledby="itemisedHeading">
+      <div class="cardHeader">
+        <div>
+          <h2 class="h3" id="itemisedHeading">Itemised Charges</h2>
+          <p class="sub">Extra charges for this period, such as room hire. They appear as plain lines on the statement.</p>
+        </div>
+        <button class="btn btn-primary" type="button" data-act="add-itemised">+ Add Line</button>
+      </div>
+      <div id="itemizedRows" class="lineRows"></div>
+      <div id="itemizedSummary" class="lineSummary" style="display:none;">
+        <span>Itemised total:</span>
+        <span id="itemizedTotalDisplay">€0.00</span>
+      </div>
+    </section>
+
+    <!-- Adjustments -->
+    <section class="card" id="adjustmentsCard" aria-labelledby="adjHeading">
+      <div class="cardHeader">
+        <div>
+          <h2 class="h3" id="adjHeading">Manual Adjustments</h2>
+          <p class="sub">Credits (negative) or extra charges (positive), shown on the statement with their reason.</p>
+        </div>
+        <button class="btn btn-primary" type="button" data-act="add-adjustment">+ Add Line</button>
+      </div>
+      <div id="adjRows" class="lineRows"></div>
+      <div id="adjSummary" class="lineSummary" style="display:none;">
+        <span>Net adjustment:</span>
+        <span id="adjNet">€0.00</span>
+      </div>
+      <div class="dateRow">
+        <label for="invoiceDateInput">Statement date:</label>
+        <input type="date" id="invoiceDateInput" />
+      </div>
+    </section>
+
+    <p class="foot">PulsePay demo · Northbank Physio is a fictional clinic · <a href="https://github.com/cianmccaul/pulsepay-demo">Source and README</a></p>
+  </main>
+</div>
+
+<!-- ===== Column mapper ===== -->
+<div class="overlay" id="mapModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="mapTitle">
+  <div class="login">
+    <div class="loginInner">
+      <h2 id="mapTitle">Match your columns</h2>
+      <p class="small" id="mapFor">—</p>
+      <div class="form" id="mapFields"></div>
+      <div class="form">
+        <div class="field">
+          <label for="mapDateOrder">Dates like 05/10/2026 are</label>
+          <select id="mapDateOrder">
+            <option value="dmy">Day first (5 October)</option>
+            <option value="mdy">Month first (May 10)</option>
+          </select>
+        </div>
+        <div class="calcTotals" id="mapPreview"></div>
+        <div id="mapErr" class="error" style="display:none;"></div>
+        <div class="modalActions">
+          <button class="btn btn-primary" type="button" data-act="map-import">Import bookings</button>
+          <button class="btn btn-ghost-dark" type="button" data-act="close-modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Billing period ===== -->
+<div class="overlay" id="periodModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="periodTitle">
+  <div class="login">
+    <div class="loginInner">
+      <h2 id="periodTitle">Billing period</h2>
+      <p class="small">Rent is worked out over this period. Bookings outside it are left out.</p>
+      <div class="form">
+        <div class="field">
+          <label for="pMonth">Month</label>
+          <input id="pMonth" type="month" />
+        </div>
+        <div class="field">
+          <label for="pStart">Period starts on day</label>
+          <select id="pStart"></select>
+        </div>
+        <div class="field">
+          <label for="pBH">Bank holidays (YYYY-MM-DD, comma separated)</label>
+          <input id="pBH" type="text" inputmode="text" />
+        </div>
+        <div class="calcTotals"><div class="row"><span>Period</span><strong id="pPreview">—</strong></div></div>
+        <div id="pErr" class="error" style="display:none;"></div>
+        <div class="modalActions">
+          <button class="btn btn-primary" type="button" data-act="save-period">Save period</button>
+          <button class="btn btn-ghost-dark" type="button" data-act="close-modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Capacity Calculator ===== -->
+<div class="overlay" id="calcModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="calcTitle">
+  <div class="login">
+    <div class="loginInner">
+      <h2 id="calcTitle">Capacity Calculator</h2>
+      <p class="small" id="calcFor">Therapist: —</p>
+
+      <div class="form">
+        <div class="field">
+          <label for="c_hours">Total hours in the period</label>
+          <input id="c_hours" type="number" min="0" inputmode="decimal" />
+        </div>
+
+        <div class="field">
+          <label>Breaks</label>
+          <div class="breakGrid"><span>30 min breaks</span><input id="c_b30" type="number" min="0" inputmode="numeric" aria-label="Number of 30 minute breaks" /></div>
+          <div class="breakGrid"><span>45 min breaks</span><input id="c_b45" type="number" min="0" inputmode="numeric" aria-label="Number of 45 minute breaks" /></div>
+          <div class="breakGrid"><span>60 min breaks</span><input id="c_b60" type="number" min="0" inputmode="numeric" aria-label="Number of 60 minute breaks" /></div>
+        </div>
+
+        <div class="field">
+          <label>Session length</label>
+          <div class="radioRow">
+            <label class="chip"><input type="radio" name="apptDur" value="30" /> 30 min</label>
+            <label class="chip"><input type="radio" name="apptDur" value="45" checked /> 45 min</label>
+            <label class="chip"><input type="radio" name="apptDur" value="60" /> 60 min</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="c_perHour">Retainer per hour (€)</label>
+          <input id="c_perHour" type="number" min="0" step="0.5" inputmode="decimal" />
+        </div>
+
+        <div class="calcTotals">
+          <div class="row"><span>Max sessions</span><strong id="c_outMaxP">—</strong></div>
+          <div class="row"><span>Suggested minimum retainer</span><strong id="c_outRet">—</strong></div>
+          <div class="note" id="c_outExplain"></div>
+        </div>
+
+        <div class="modalActions">
+          <button class="btn btn-primary" type="button" data-act="apply-calc">Apply to Therapist</button>
+          <button class="btn btn-ghost-dark" type="button" data-act="close-modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Rules ===== -->
+<div class="overlay" id="rulesModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+  <div class="login">
+    <div class="loginInner">
+      <h2 id="rulesTitle">Edit Rules</h2>
+      <p class="small" id="rulesFor">Therapist: —</p>
+
+      <div class="form">
+        <div class="field">
+          <label for="r_title">Role</label>
+          <input id="r_title" type="text" placeholder="e.g. Chartered Physiotherapist" />
+        </div>
+
+        <div class="field">
+          <label>Rent model</label>
+          <div class="radioRow" id="modelChips"></div>
+          <p class="small" id="modelHelp"></p>
+        </div>
+
+        <div id="w_percentage" class="modelWrap">
+          <div class="grid2f">
+            <div class="field"><label for="r_wd">Weekday %</label><input id="r_wd" type="number" step="0.1" min="0" max="100" inputmode="decimal" /></div>
+            <div class="field"><label for="r_sat">Saturday %</label><input id="r_sat" type="number" step="0.1" min="0" max="100" inputmode="decimal" /></div>
+            <div class="field"><label for="r_sun">Sunday %</label><input id="r_sun" type="number" step="0.1" min="0" max="100" inputmode="decimal" /></div>
+            <div class="field"><label for="r_bh">Bank holiday % <span class="opt">optional</span></label><input id="r_bh" type="number" step="0.1" min="0" max="100" inputmode="decimal" placeholder="weekday rate" /></div>
+          </div>
+        </div>
+
+        <div id="w_fixed_monthly" class="modelWrap">
+          <div class="field"><label for="r_fixed">€ per month</label><input id="r_fixed" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 650" /></div>
+        </div>
+
+        <div id="w_per_session" class="modelWrap">
+          <div class="field"><label for="r_fee">€ per session</label><input id="r_fee" type="number" min="0" step="0.5" inputmode="decimal" placeholder="e.g. 14" /></div>
+        </div>
+
+        <div id="w_tiers" class="modelWrap">
+          <div class="field"><label for="r_capacity">Capacity (max sessions in the period)</label><input id="r_capacity" type="number" min="0" step="1" inputmode="numeric" /></div>
+          <div class="field">
+            <label id="tierLabel">Capacity tiers</label>
+            <table class="tierEdit" aria-labelledby="tierLabel">
+              <thead><tr><th>From capacity %</th><th>Rent %</th><th></th></tr></thead>
+              <tbody id="tierBody"></tbody>
+            </table>
+            <button type="button" class="btn btn-ghost-dark btnSmall" data-act="add-tier">+ Add Tier</button>
+          </div>
+          <div id="w_hybrid_weekend" class="grid2f">
+            <div class="field"><label for="r_hsat">Saturday %</label><input id="r_hsat" type="number" step="0.1" min="0" max="100" inputmode="decimal" /></div>
+            <div class="field"><label for="r_hsun">Sunday %</label><input id="r_hsun" type="number" step="0.1" min="0" max="100" inputmode="decimal" /></div>
+            <div class="field"><label for="r_hbh">Bank holiday % <span class="opt">optional</span></label><input id="r_hbh" type="number" step="0.1" min="0" max="100" inputmode="decimal" placeholder="weekday tier" /></div>
+          </div>
+        </div>
+
+        <div id="w_limits" class="grid2f">
+          <div class="field"><label for="r_cap">Rent cap (€)</label><input id="r_cap" type="number" min="0" inputmode="decimal" placeholder="0 = none" /></div>
+          <div class="field"><label for="r_ret">Minimum retainer (€)</label><input id="r_ret" type="number" min="0" inputmode="decimal" placeholder="0 = none" /></div>
+        </div>
+        <p class="small" id="limitsNote" style="display:none;">The rent cap and retainer don't apply to a fixed monthly rent.</p>
+
+        <div class="field">
+          <label id="equipLabel">Equipment fees</label>
+          <div id="equipRows" class="equipRows"></div>
+          <button type="button" class="btn btn-ghost-dark btnSmall" data-act="add-equipment">+ Add Equipment</button>
+        </div>
+
+        <div id="rulesErr" class="error" style="display:none;"></div>
+
+        <div class="modalActions">
+          <button class="btn btn-primary" type="button" data-act="save-rules">Save Rules</button>
+          <button class="btn btn-ghost-dark" type="button" data-act="close-modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="vendor/papaparse-5.5.5.min.js" defer></script>
+<script src="js/engine.js" defer></script>
+<script src="js/clinic-config.js" defer></script>
+<script src="js/sample-bookings.js" defer></script>
+<script src="js/statement-pdf.js" defer></script>
+<script src="js/app.js" defer></script>
+</body>
+</html>
