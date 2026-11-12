@@ -1,0 +1,212 @@
+/* Demo-only styles. Built from PulsePay's own tokens in pulsepay.css
+   (--red, --blue, --ink, --muted, --stroke, the card and chip styles).
+   No new colours apart from the demo bar, which matches the Northbank demos. */
+
+/* ---------- Inter, self-hosted (vendor/fonts, latin subset) ---------- */
+@font-face { font-family: Inter; font-style: normal; font-weight: 400; font-display: swap; src: url(../vendor/fonts/inter-latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: Inter; font-style: normal; font-weight: 500; font-display: swap; src: url(../vendor/fonts/inter-latin-500-normal.woff2) format('woff2'); }
+@font-face { font-family: Inter; font-style: normal; font-weight: 600; font-display: swap; src: url(../vendor/fonts/inter-latin-600-normal.woff2) format('woff2'); }
+@font-face { font-family: Inter; font-style: normal; font-weight: 700; font-display: swap; src: url(../vendor/fonts/inter-latin-700-normal.woff2) format('woff2'); }
+@font-face { font-family: Inter; font-style: normal; font-weight: 800; font-display: swap; src: url(../vendor/fonts/inter-latin-800-normal.woff2) format('woff2'); }
+
+/* ---------- Demo bar (same pattern as the Northbank demos) ---------- */
+.demo-bar { background: #101018; color: #f1f5f9; font-size: 12.5px; position: relative; z-index: 11; }
+.demo-bar-inner {
+  max-width: 1100px; margin: 0 auto; padding: 7px 18px;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 18px;
+}
+.demo-bar-text { margin: 0; color: #cbd5e1; line-height: 1.5; }
+.demo-bar-text strong {
+  color: #fff; font-weight: 700; display: inline-block; padding: 1px 8px; margin-right: 2px;
+  border: 1px solid rgba(255,62,91,.55); border-radius: 999px; background: rgba(255,62,91,.18);
+}
+.demo-bar-links { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; }
+.demo-bar-links a, .demo-bar-button {
+  color: #fff; font: inherit; font-weight: 600;
+  text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(255,255,255,.35);
+  background: none; border: 0; padding: 4px 0; cursor: pointer; min-height: 30px;
+  display: inline-flex; align-items: center; line-height: 1.2;
+}
+.demo-bar-links a:hover, .demo-bar-button:hover { text-decoration-color: var(--red); }
+.demo-bar-links a:focus-visible, .demo-bar-button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+
+/* ---------- Page ---------- */
+/* The production body sets height:100%, so its glow gradients repeated in
+   bands down a long page. Paint them once, over the flat background. */
+body { background-repeat: no-repeat; background-color: var(--bg); }
+.btn { font-family: inherit; font-size: 13.5px; }
+.ruleRow { gap: 12px; }
+.ruleRow strong { flex: none; white-space: nowrap; }
+.ruleRow > span { text-align: right; }
+
+/* ---------- Header ---------- */
+.brand img { display: block; border-radius: 9px; }
+.brand-sub { display: block; font-size: 11px; font-weight: 600; opacity: .72; letter-spacing: .2px; margin-top: 1px; }
+h2.h3 { margin: 0; font-size: 16px; letter-spacing: -0.2px; }
+.btn:focus-visible, .bubble:focus-visible, .linkBtn:focus-visible, .ovRow:focus-visible { outline: 3px solid rgba(11,61,145,.45); outline-offset: 2px; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btnSmall { font-size: 12px; padding: 6px 10px; margin-top: 8px; }
+
+/* ---------- Therapist bubbles are buttons now ---------- */
+button.bubble { font: inherit; padding: 0; }
+.bubble .name { font-size: 16.5px; }
+.bubble .hint { padding: 0 8px; }
+
+/* ---------- Month overview ---------- */
+.overview { margin-top: 14px; }
+.ovList { border: 1px solid var(--stroke); border-radius: 14px; overflow: hidden; background: rgba(255,255,255,.75); }
+.ovRow {
+  display: grid; grid-template-columns: minmax(0, 1.6fr) 120px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 10px; align-items: center; width: 100%; text-align: left;
+  padding: 11px 14px; border: 0; border-top: 1px solid rgba(15,23,42,.06); background: transparent;
+  font: inherit; font-size: 13px; color: var(--muted); font-weight: 600; cursor: pointer;
+}
+.ovRow:first-child { border-top: 0; }
+.ovRow:hover { background: rgba(11,61,145,.04); }
+.ovRow.active { background: rgba(255,62,91,.07); }
+.ovHead { cursor: default; background: rgba(11,61,145,.06) !important; color: var(--blue); font-size: 11.5px; text-transform: uppercase; letter-spacing: .5px; font-weight: 800; }
+.ovTotal { cursor: default; background: rgba(255,62,91,.05) !important; color: var(--ink); font-weight: 800; }
+.ovName b { display: block; color: var(--ink); font-size: 14px; }
+.ovName span { font-size: 12px; font-weight: 600; }
+.ovNum { text-align: right; font-variant-numeric: tabular-nums; }
+.ovDue { text-align: right; color: var(--ink); font-weight: 800; font-variant-numeric: tabular-nums; }
+.ovDue .flag { display: inline-block; margin-left: 6px; }
+.ovLabel { display: none; }
+.flag {
+  font-size: 10.5px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 999px; vertical-align: 1px; white-space: nowrap;
+}
+.flag.cap { background: rgba(255,62,91,.12); color: #b4183a; }
+.flag.ret { background: rgba(11,61,145,.10); color: var(--blue); }
+.ovMeta { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); font-weight: 600; }
+.ovMeta button { font-size: 12px; }
+.empty { padding: 18px; border: 1.6px dashed rgba(11,61,145,.22); border-radius: 14px; text-align: center; color: var(--muted); font-size: 13.5px; font-weight: 600; }
+.empty .fileRow { justify-content: center; margin-top: 12px; }
+
+/* ---------- Side card ---------- */
+.periodVal { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; text-align: right; }
+.linkBtn {
+  background: none; border: 0; padding: 2px 0; cursor: pointer; font: inherit; font-weight: 700;
+  color: var(--blue); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(11,61,145,.35);
+}
+
+/* ---------- Results ---------- */
+.warn {
+  margin-top: 10px; padding: 10px 12px; border-radius: 14px;
+  border: 1px solid rgba(11,61,145,.18); background: rgba(11,61,145,.06);
+  color: var(--blue2); font-size: 13px; font-weight: 600; line-height: 1.45;
+}
+.warn ul { margin: 4px 0 0; padding-left: 18px; }
+.row.step span { min-width: 0; }
+.row.step strong { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.row.step.muted span { font-weight: 600; font-style: italic; }
+.row.step.limit, .row.step.limit strong { color: #b4183a; }
+.row.step.sub span, .row.step.sub strong { color: var(--ink); font-weight: 800; }
+.row.step.total { border-top: 2px solid var(--red); margin-top: 4px; padding-top: 10px; }
+.row.step.total span { color: var(--ink); font-weight: 800; }
+.row.step.total strong { color: var(--red); font-size: 15px; }
+.yes { color: #b4183a !important; font-weight: 800; }
+.capRow.active { background: var(--blue); color: #fff; border-radius: 8px; }
+.capRow.active b { color: #fff; }
+
+/* ---------- Itemised + adjustments ---------- */
+.lineRows { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.lineRow { display: flex; gap: 10px; align-items: center; }
+.lineRow input, .dateRow input, .field select, .mapRow select, .tierEdit input, .equipRow input, .equipRow select {
+  border: 1px solid rgba(15,23,42,.12); border-radius: 10px; padding: 10px 12px;
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--ink); background: #fff; outline: none; min-width: 0;
+}
+.lineRow input:focus, .dateRow input:focus, .field select:focus, .mapRow select:focus, .tierEdit input:focus, .equipRow input:focus, .equipRow select:focus {
+  border-color: rgba(11,61,145,.35); box-shadow: 0 0 0 4px rgba(11,61,145,.10);
+}
+.lineRow .lbl { flex: 2; }
+.lineRow .amt { flex: 1; max-width: 160px; }
+.rmBtn {
+  background: rgba(255,62,91,.1); border: 1px solid rgba(255,62,91,.2); color: #e11d48;
+  border-radius: 999px; padding: 8px 12px; font-weight: 700; cursor: pointer; flex: none; font: inherit;
+}
+.lineSummary {
+  margin-top: 12px; padding: 10px 14px; background: rgba(11,61,145,.06); border-radius: 12px;
+  font-size: 13px; font-weight: 700; color: var(--blue); display: flex; justify-content: space-between;
+}
+.lineEmpty { font-size: 13px; color: var(--muted); font-weight: 600; padding: 4px 0; }
+.dateRow {
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(15,23,42,.08);
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+}
+.dateRow label { font-size: 13px; font-weight: 700; color: var(--blue); }
+.panel + .card, .card + .card { margin-top: 14px; }
+
+/* ---------- Modals ---------- */
+.login { width: min(560px, 100%); }
+.field select, .mapRow select { padding: 10px 12px; width: 100%; }
+.grid2f { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.opt { text-transform: none; letter-spacing: 0; font-weight: 600; opacity: .75; }
+.modelWrap { display: none; }
+.modelWrap.on { display: block; }
+.tierEdit { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tierEdit th { text-align: left; color: var(--muted); font-size: 11.5px; font-weight: 700; padding: 0 4px 6px; }
+.tierEdit td { padding: 3px 4px; }
+.tierEdit input { width: 100%; padding: 8px 10px; }
+.tierEdit td:last-child { width: 44px; text-align: center; }
+.equipRows { display: flex; flex-direction: column; gap: 10px; }
+.equipRow { border: 1px solid var(--stroke); border-radius: 14px; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: rgba(255,255,255,.8); }
+.equipRow label { display: grid; gap: 4px; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.equipRow input, .equipRow select { padding: 8px 10px; }
+.equipRow .rmBtn { justify-self: end; align-self: end; }
+.mapRow { display: grid; grid-template-columns: 110px 1fr; gap: 10px; align-items: center; }
+.mapRow > span:first-child { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+.mapRow .ex { grid-column: 2; font-size: 12px; color: var(--muted); font-weight: 600; margin-top: -4px; overflow-wrap: anywhere; }
+.req { color: var(--red); }
+
+/* ---------- Toast ---------- */
+.toast {
+  position: fixed; left: 50%; bottom: 18px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+  background: var(--ink); color: #fff; padding: 11px 16px; border-radius: 14px; font-size: 13.5px; font-weight: 600;
+  box-shadow: var(--shadow); transition: opacity .2s ease, transform .2s ease; z-index: 1000; max-width: calc(100vw - 32px);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+.foot { margin: 22px 0 0; text-align: center; font-size: 12px; color: var(--muted); font-weight: 600; }
+.foot a { color: var(--blue); }
+
+/* ---------- Phones ---------- */
+@media (max-width: 760px) {
+  header { position: static; }
+  .nav { flex-direction: column; align-items: stretch; padding: 12px 16px; }
+  .pill { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; padding-bottom: 4px; margin: 0 -16px; padding-left: 16px; padding-right: 16px; scrollbar-width: none; }
+  .pill::-webkit-scrollbar { display: none; }
+  .wrap { padding: 16px 16px 60px; }
+  .demo-bar-inner { padding: 6px 16px; }
+  .ovHead { display: none !important; }
+  .ovRow { grid-template-columns: 1fr auto; gap: 2px 10px; }
+  .ovRow .ovName { grid-column: 1; }
+  .ovRow .ovDue { grid-column: 2; grid-row: 1; }
+  .ovRow .ovNum { grid-column: 1 / -1; text-align: left; font-size: 12px; }
+  .ovRow .ovNum.model { display: none; }
+  .ovLabel { display: inline; }
+  .ovTotal .ovNum { display: none; }
+}
+@media (max-width: 520px) {
+  .heroCard, .sideCard, .card { padding: 14px; }
+  .cardHeader { flex-wrap: wrap; }
+  .grid2f, .equipRow { grid-template-columns: 1fr; }
+  .lineRow { flex-wrap: wrap; }
+  .lineRow .lbl { flex: 1 1 100%; }
+  .lineRow .amt { flex: 1; max-width: none; }
+  .drop .fileRow { width: 100%; }
+  .drop .fileRow .btn { flex: 1; justify-content: center; }
+  .bubbleGrid { gap: 10px; }
+  .bubble { width: 96px; height: 96px; }
+  .bubble .name { font-size: 14.5px; }
+  .bubble .hint { font-size: 11px; }
+  .mapRow { grid-template-columns: 1fr; gap: 4px; }
+  .mapRow .ex { grid-column: 1; margin-top: 0; }
+  .overlay { padding: 10px; }
+  .login { padding: 14px; }
+}
+
+/* chips and small buttons inside form fields keep their own look */
+.field label.chip { text-transform: none; letter-spacing: 0; font-size: 12.5px; color: var(--muted); }
+.field > .btnSmall { justify-self: start; }
+.modelWrap.on, #w_limits { margin-bottom: 2px; }
