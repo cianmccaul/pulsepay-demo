@@ -55,6 +55,8 @@ The export also has 26 bookings for Clare Morgan, the clinic director, who is pa
 | Storage | `localStorage` in your browser, with **Reset** | A small API on Vercel with Blob storage |
 | Login | None | A sign-in screen |
 
+The real PulsePay signs staff in on the server: a signed HttpOnly session cookie, a protected API, and a rate-limited login. None of that exists in this demo.
+
 **No network calls.** The CSV and PDF libraries and the Inter font are bundled in `public/vendor/` at pinned versions, and the sample month is embedded in the page. The Content-Security-Policy in `vercel.json` sets `connect-src 'none'`, so the browser would block any request to a server, even by mistake.
 
 ## How the engine works

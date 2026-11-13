@@ -15,7 +15,10 @@
 
 <div class="demo-bar" role="region" aria-label="Demo">
   <div class="demo-bar-inner">
-    <p class="demo-bar-text"><strong>Demo</strong> · fictional clinic and therapists · nothing is saved to a server</p>
+    <div class="demo-bar-lead">
+      <a class="back-link" href="https://cianmccaul.vercel.app"><span aria-hidden="true">←</span> Back to portfolio</a>
+      <p class="demo-bar-text"><strong>Demo</strong> · fictional clinic and therapists · nothing is saved to a server</p>
+    </div>
     <div class="demo-bar-links">
       <a href="samples/northbank-bookings-october-2026.csv" download>Sample CSV</a>
       <button type="button" class="demo-bar-button" data-act="reset">Reset</button>
@@ -236,6 +239,11 @@
         <input type="date" id="invoiceDateInput" />
       </div>
     </section>
+
+    <!-- Same output as "Download PDF" in the header -->
+    <div class="statementActions">
+      <button class="btn btn-primary" type="button" data-act="pdf-one">Download PDF</button>
+    </div>
 
     <p class="foot">PulsePay demo · Northbank Physio is a fictional clinic · <a href="https://github.com/cianmccaul/pulsepay-demo">Source and README</a></p>
   </main>
